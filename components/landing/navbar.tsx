@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useAuth } from "@/store/auth";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -11,12 +11,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { SignInDialog } from "@/components/auth/SignInDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const { data: session } = useSession();
+  const { user, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setMounted(true);
@@ -104,12 +109,12 @@ export default function Navbar() {
 
                 {/* Auth Buttons */}
                 <div className="flex items-center gap-4">
-                  {session ? (
+                  {user ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger>
                         <div className="w-10 h-10 rounded-full border-2 border-pink-500/50 overflow-hidden">
                           <Image
-                            src={session.user?.image || "/default-avatar.png"}
+                            src={user.avatarUrl || "/default-avatar.png"}
                             alt="User avatar"
                             width={40}
                             height={40}
@@ -128,7 +133,7 @@ export default function Navbar() {
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <button
-                            onClick={() => signOut()}
+                            onClick={() => logout(queryClient)}
                             className="w-full text-left text-gray-300 hover:text-white"
                           >
                             Sign Out
@@ -141,7 +146,7 @@ export default function Navbar() {
                       <Button
                         variant="ghost"
                         className="hidden sm:inline-flex text-gray-300 hover:text-white hover:bg-gray-800/50"
-                        onClick={() => signIn("google")}
+                        onClick={() => setIsSignInOpen(true)}
                       >
                         Sign In
                       </Button>
@@ -149,7 +154,7 @@ export default function Navbar() {
                       {/* Get Started Button */}
                       <Button
                         className="bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:opacity-90"
-                        onClick={() => redirect("/create")}
+                        onClick={() => router.push("/create")}
                       >
                         Get Started
                       </Button>
@@ -163,6 +168,11 @@ export default function Navbar() {
           </div>
         </motion.header>
       )}
+      
+      <SignInDialog 
+        isOpen={isSignInOpen} 
+        onClose={() => setIsSignInOpen(false)} 
+      />
     </>
   );
 }

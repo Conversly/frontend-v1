@@ -21,7 +21,6 @@ export const logout = async () => {
 export const googleOauth = async (
   code: string | null,
   credential: string | null,
-  inviteCode: string,
 ) => {
   const res = (await fetch(
     API.ENDPOINTS.AUTH.BASE_URL() + API.ENDPOINTS.AUTH.GOOGLE_OAUTH(),
@@ -30,7 +29,6 @@ export const googleOauth = async (
       data: {
         code,
         credential,
-        inviteCode,
       },
     },
   ).then((res) => res.data)) as ApiResponse<GoogleOauthResponse>;

@@ -14,7 +14,6 @@ interface AuthConfig {
 interface UseAuthReturn {
   authenticateWithGoogle: (
     idToken: string,
-    inviteCode: string,
   ) => Promise<void>;
   isAuthenticated: () => boolean;
   keyPair: React.RefObject<any | null>;
@@ -55,9 +54,9 @@ export const useAuth = (config: AuthConfig = {}): UseAuthReturn => {
   );
 
   const authenticateWithGoogle = useCallback(
-    async (idToken: string, inviteCode: string): Promise<void> => {
+    async (idToken: string): Promise<void> => {
       try {
-        const response = await googleOauth(null, idToken, inviteCode);
+        const response = await googleOauth(null, idToken);
 
         if (!response.success || !response.data) {
           throw new Error(response.message || "Google authentication failed");

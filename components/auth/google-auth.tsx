@@ -23,12 +23,10 @@ interface GoogleTokenPayload {
 
 interface GoogleAuthProps {
   onLoadingChange?: (loading: boolean) => void;
-  inviteCode: string;
 }
 
 export const GoogleAuth: React.FC<GoogleAuthProps> = ({
   onLoadingChange,
-  inviteCode,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { authenticateWithGoogle, keyPair } = useAuth();
@@ -101,7 +99,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
               if (idToken) {
                 authWindow.close();
                 clearInterval(interval);
-                authenticateWithGoogle(idToken, inviteCode)
+                authenticateWithGoogle(idToken)
                   .then(() => {
                     toast.success("Authenticated", { id: toastId });
                     resolve();
@@ -120,7 +118,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
         }, 500);
       });
     },
-    [updateLoadingState, inviteCode, authenticateWithGoogle, keyPair],
+    [updateLoadingState, authenticateWithGoogle, keyPair],
   );
 
   const handleLogin = useCallback(async (): Promise<void> => {
