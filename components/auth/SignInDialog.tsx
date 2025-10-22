@@ -62,8 +62,7 @@ export function SignInDialog({ isOpen, onClose }: SignInDialogProps) {
             {/* Auth Section */}
             <div className="p-6">
               <GoogleAuth />
-            </div>
-
+              
               {/* Marketing Points */}
               <div className="space-y-4 pt-4 border-t">
                 <p className="text-sm text-muted-foreground text-center">
@@ -89,6 +88,7 @@ export function SignInDialog({ isOpen, onClose }: SignInDialogProps) {
                 </div>
               </div>
             </div>
+          </div>
         </AnimatePresence>
       </DialogContent>
     </Dialog>

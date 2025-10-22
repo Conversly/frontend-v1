@@ -3,7 +3,7 @@ import { useNewUserModal } from "@/store/new-user-modal";
 import { GoogleOauthResponse } from "@/types/auth";
 import { LOCAL_STORAGE_KEY } from "@/utils/local-storage-key";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 
 interface AuthConfig {
   redirectTo?: string;
@@ -16,13 +16,11 @@ interface UseAuthReturn {
     idToken: string,
   ) => Promise<void>;
   isAuthenticated: () => boolean;
-  keyPair: React.RefObject<any | null>;
 }
 
 export const useAuth = (config: AuthConfig = {}): UseAuthReturn => {
   const router = useRouter();
   const { showModal } = useNewUserModal();
-  const keyPair = useRef<any | null>(null);
 
   const { redirectTo = "/radar", onSuccess, onError } = config;
 
@@ -84,6 +82,5 @@ export const useAuth = (config: AuthConfig = {}): UseAuthReturn => {
   return {
     authenticateWithGoogle,
     isAuthenticated,
-    keyPair,
   };
 };

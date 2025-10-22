@@ -29,7 +29,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
   onLoadingChange,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { authenticateWithGoogle, keyPair } = useAuth();
+  const { authenticateWithGoogle } = useAuth();
   const { setAuthLoading, clearAuthLoading } = useAuthLoadingStore();
   const isAnyAuthLoading = useIsAnyAuthLoading();
 
@@ -53,6 +53,10 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
   );
 
   const buildOAuthUrl = useCallback(async (): Promise<string> => {
+    // Generate a random nonce for security
+    const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
 
     const authUrl = new URL(GOOGLE_AUTH_URL);
     authUrl.searchParams.set("client_id", googleClientId!);
@@ -60,7 +64,13 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
     authUrl.searchParams.set("response_type", "id_token");
     authUrl.searchParams.set("scope", "openid email profile");
     authUrl.searchParams.set("prompt", "select_account");
+    authUrl.searchParams.set("nonce", nonce);
     authUrl.searchParams.set("state", `provider=google&flow=popup`);
+
+    console.log("OAuth Config:");
+    console.log("- Client ID:", googleClientId);
+    console.log("- Redirect URI:", redirectURI);
+    console.log("- Full Auth URL:", authUrl.toString());
 
     return authUrl.toString();
   }, [googleClientId, redirectURI]);
@@ -89,27 +99,36 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
         const interval = setInterval(() => {
           try {
             const url = authWindow.location.href || "";
+            console.log("Checking popup URL:", url);
 
             if (url.startsWith(window.location.origin)) {
+              console.log("URL matches origin, checking for token...");
               const hashParams = new URLSearchParams(url.split("#")[1] || "");
               const idToken = hashParams.get("id_token");
-
-              if (!keyPair.current) return;
+              console.log("ID Token found:", idToken ? "YES" : "NO");
 
               if (idToken) {
+                console.log("Calling backend with token...");
                 authWindow.close();
                 clearInterval(interval);
                 authenticateWithGoogle(idToken)
                   .then(() => {
+                    console.log("Backend authentication successful!");
                     toast.success("Authenticated", { id: toastId });
                     resolve();
                   })
-                  .catch(reject);
+                  .catch((error) => {
+                    console.error("Backend authentication failed:", error);
+                    reject(error);
+                  });
               }
             }
-          } catch {}
+          } catch (error) {
+            console.log("Error accessing popup URL (CORS - normal):", error);
+          }
 
           if (authWindow.closed) {
+            console.log("Popup was closed by user");
             clearInterval(interval);
             updateLoadingState(false);
             toast.error("Authentication cancelled", { id: toastId });
@@ -118,7 +137,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
         }, 500);
       });
     },
-    [updateLoadingState, authenticateWithGoogle, keyPair],
+    [updateLoadingState, authenticateWithGoogle],
   );
 
   const handleLogin = useCallback(async (): Promise<void> => {
