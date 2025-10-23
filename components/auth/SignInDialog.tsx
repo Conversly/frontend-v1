@@ -19,10 +19,43 @@ interface SignInDialogProps {
 
 export function SignInDialog({ isOpen, onClose }: SignInDialogProps) {
   const [mounted, setMounted] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Close dialog after successful authentication
+  useEffect(() => {
+    if (!isOpen || isAuthLoading) return;
+    
+    // Check if user just logged in
+    const checkAuthStatus = () => {
+      const isLoggedIn = localStorage.getItem('is-logged-in');
+      if (isLoggedIn === 'true') {
+        onClose();
+      }
+    };
+
+    // Check immediately and set up interval
+    checkAuthStatus();
+    const interval = setInterval(checkAuthStatus, 500);
+
+    return () => clearInterval(interval);
+  }, [isOpen, isAuthLoading, onClose]);
+
+  const handleAuthLoadingChange = (loading: boolean) => {
+    setIsAuthLoading(loading);
+    // If loading just finished, check auth status and close if logged in
+    if (!loading) {
+      setTimeout(() => {
+        const isLoggedIn = localStorage.getItem('is-logged-in');
+        if (isLoggedIn === 'true') {
+          onClose();
+        }
+      }, 100);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -61,7 +94,7 @@ export function SignInDialog({ isOpen, onClose }: SignInDialogProps) {
 
             {/* Auth Section */}
             <div className="p-6">
-              <GoogleAuth />
+              <GoogleAuth onLoadingChange={handleAuthLoadingChange} />
               
               {/* Marketing Points */}
               <div className="space-y-4 pt-4 border-t">

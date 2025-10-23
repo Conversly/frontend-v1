@@ -13,15 +13,41 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { SignInDialog } from "@/components/auth/SignInDialog";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { getLoggedInUser } from "@/lib/api/user";
+import { QUERY_KEY } from "@/utils/query-key";
+import { LOCAL_STORAGE_KEY } from "@/utils/local-storage-key";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  console.log("Navbar user:", user);
+
+  const { data: fetchedUser } = useQuery({
+    queryKey: [QUERY_KEY.LOGGED_IN_USER],
+    queryFn: async () => {
+      const isLoggedIn = localStorage.getItem(LOCAL_STORAGE_KEY.IS_LOGGED_IN);
+      if (isLoggedIn !== "true") {
+        return null;
+      }
+      return await getLoggedInUser();
+    },
+    enabled: mounted,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (fetchedUser) {
+      console.log("Setting user in store:", fetchedUser);
+      setUser(fetchedUser);
+    }
+  }, [fetchedUser, setUser]);
 
   useEffect(() => {
     setMounted(true);

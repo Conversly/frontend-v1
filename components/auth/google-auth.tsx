@@ -96,6 +96,8 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
       authWindow.location.href = authUrl;
 
       return new Promise((resolve, reject) => {
+        let isAuthenticating = false;
+        
         const interval = setInterval(() => {
           try {
             const url = authWindow.location.href || "";
@@ -107,18 +109,23 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
               const idToken = hashParams.get("id_token");
               console.log("ID Token found:", idToken ? "YES" : "NO");
 
-              if (idToken) {
-                console.log("Calling backend with token...");
-                authWindow.close();
+              if (idToken && !isAuthenticating) {
+                isAuthenticating = true;
                 clearInterval(interval);
+                console.log("Calling backend with token...");
+                
                 authenticateWithGoogle(idToken)
                   .then(() => {
                     console.log("Backend authentication successful!");
+                    updateLoadingState(false);
+                    authWindow.close();
                     toast.success("Authenticated", { id: toastId });
                     resolve();
                   })
                   .catch((error) => {
                     console.error("Backend authentication failed:", error);
+                    updateLoadingState(false);
+                    authWindow.close();
                     reject(error);
                   });
               }
@@ -127,7 +134,8 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
             console.log("Error accessing popup URL (CORS - normal):", error);
           }
 
-          if (authWindow.closed) {
+          // Only reject if window is closed AND we're not currently authenticating
+          if (authWindow.closed && !isAuthenticating) {
             console.log("Popup was closed by user");
             clearInterval(interval);
             updateLoadingState(false);

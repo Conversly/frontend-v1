@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (pathname === "/") {
-      router.replace("/radar");
+      router.replace("/");
     }
   }, [pathname, router]);
 

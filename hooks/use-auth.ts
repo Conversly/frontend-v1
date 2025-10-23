@@ -2,8 +2,10 @@ import { googleOauth } from "@/lib/api/auth";
 import { useNewUserModal } from "@/store/new-user-modal";
 import { GoogleOauthResponse } from "@/types/auth";
 import { LOCAL_STORAGE_KEY } from "@/utils/local-storage-key";
+import { QUERY_KEY } from "@/utils/query-key";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthConfig {
   redirectTo?: string;
@@ -21,8 +23,9 @@ interface UseAuthReturn {
 export const useAuth = (config: AuthConfig = {}): UseAuthReturn => {
   const router = useRouter();
   const { showModal } = useNewUserModal();
+  const queryClient = useQueryClient();
 
-  const { redirectTo = "/radar", onSuccess, onError } = config;
+  const { redirectTo = "/", onSuccess, onError } = config;
 
   const handleAuthSuccess = useCallback(
     async (message: string, response: GoogleOauthResponse) => {
@@ -30,6 +33,16 @@ export const useAuth = (config: AuthConfig = {}): UseAuthReturn => {
         const { isNewUser } = response;
 
         localStorage.setItem(LOCAL_STORAGE_KEY.IS_LOGGED_IN, "true");
+
+        // Invalidate and refetch user query to update navbar
+        await queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.LOGGED_IN_USER],
+        });
+        
+        // Refetch immediately to update the UI
+        await queryClient.refetchQueries({
+          queryKey: [QUERY_KEY.LOGGED_IN_USER],
+        });
 
         if (onSuccess) {
           await onSuccess();
@@ -48,7 +61,7 @@ export const useAuth = (config: AuthConfig = {}): UseAuthReturn => {
         throw new Error("Authentication successful but navigation failed");
       }
     },
-    [router, redirectTo, onSuccess, showModal],
+    [router, redirectTo, onSuccess, showModal, queryClient],
   );
 
   const authenticateWithGoogle = useCallback(
