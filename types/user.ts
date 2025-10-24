@@ -3,7 +3,6 @@ export interface User {
   username: string;
   name: string;
   avatarUrl?: string | null;
-  type: string;
   displayName: string;
-  subOrgId: string;
+  
 }

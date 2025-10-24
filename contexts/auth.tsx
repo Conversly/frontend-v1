@@ -1,6 +1,6 @@
 "use client";
 
-import { getLoggedInUser, getUserSettings } from "@/lib/api/user";
+import { getLoggedInUser } from "@/lib/api/user";
 import { useAuth } from "@/store/auth";
 import { LOCAL_STORAGE_KEY } from "@/utils/local-storage-key";
 import { QUERY_KEY } from "@/utils/query-key";
@@ -27,13 +27,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return await getLoggedInUser();
     },
     retry: false,
-  });
-
-  const { data: userSettings } = useQuery({
-    queryKey: [QUERY_KEY.USER_SETTINGS],
-    queryFn: async () => {
-      return await getUserSettings();
-    },
   });
 
   useEffect(() => {
