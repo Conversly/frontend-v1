@@ -38,7 +38,7 @@ import { ChatbotPreview } from '@/components/chatbot/ChatbotPreview';
 import { Highlight, themes } from 'prism-react-renderer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useCustomizationDraft, useCustomizationStore } from '@/store/chatbot/customization';
-import type { UIConfigInput } from '@/lib/customization-mapper';
+import type { UIConfigInput } from '@/types/customization';
 
 interface CustomizationTabProps {
   chatbotId: string;
@@ -116,8 +116,8 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
     keepShowingSuggested: false,
     collectFeedback: true,
     allowRegenerate: true,
-    dismissibleNoticeHtml: '',
-    footerHtml: '',
+  dismissibleNoticeText: '',
+  footerText: '',
     autoShowInitial: true,
     autoShowDelaySec: 3,
     widgetEnabled: true,
@@ -165,19 +165,21 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
   updateConfig({ starterQuestions: [...config.starterQuestions, ''] });
   };
 
-  /** File upload helper to convert icon to base64 */
-  const handleIconUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  /** File upload helper to upload icon and store URL */
+  const handleIconUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        updateConfig({
-          customIcon: base64String,
-          selectedIcon: '',
-        });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    try {
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+        method: 'POST',
+        body: file,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const blob = await res.json();
+      updateConfig({ customIcon: blob.url as string, selectedIcon: '' });
+      toast.success('Profile picture uploaded');
+    } catch (e: any) {
+      toast.error(e?.message || 'Upload failed');
     }
   };
 
@@ -460,20 +462,20 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                   <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
                     <SectionHeader 
                       title="Dismissible Notice" 
-                      description="Temporary notice shown until user's first message"
+                      description="Temporary notice shown until user's first message (plain text)"
                       icon={MessageSquare}
                     />
                     <div className="space-y-2">
                       <Textarea
-                        value={config.dismissibleNoticeHtml}
-                        onChange={(e) => updateConfig({ dismissibleNoticeHtml: e.target.value.slice(0, 200) })}
-                        placeholder="Type a short notice. Basic HTML allowed."
+                        value={config.dismissibleNoticeText}
+                        onChange={(e) => updateConfig({ dismissibleNoticeText: e.target.value.slice(0, 200) })}
+                        placeholder="Type a short notice (text only)."
                         maxLength={200}
                         className="bg-gray-800/50 border-gray-700/50 text-white min-h-[100px]"
                       />
                       <div className="flex items-center justify-between text-xs text-gray-400">
                         <span>This notice hides after the user's first message</span>
-                        <span>{config.dismissibleNoticeHtml.length}/200</span>
+                        <span>{config.dismissibleNoticeText.length}/200</span>
                       </div>
                     </div>
                   </div>
@@ -482,20 +484,20 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                   <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
                     <SectionHeader 
                       title="Footer" 
-                      description="Persistent info at the bottom of the chat"
+                      description="Persistent info at the bottom of the chat (plain text)"
                       icon={MessageSquare}
                     />
                     <div className="space-y-2">
                       <Textarea
-                        value={config.footerHtml}
-                        onChange={(e) => updateConfig({ footerHtml: e.target.value.slice(0, 200) })}
-                        placeholder="Add a disclaimer or link. Basic HTML allowed."
+                        value={config.footerText}
+                        onChange={(e) => updateConfig({ footerText: e.target.value.slice(0, 200) })}
+                        placeholder="Add a disclaimer or link (text only)."
                         maxLength={200}
                         className="bg-gray-800/50 border-gray-700/50 text-white min-h-[80px]"
                       />
                       <div className="flex items-center justify-between text-xs text-gray-400">
                         <span>Shown above the input</span>
-                        <span>{config.footerHtml.length}/200</span>
+                        <span>{config.footerText.length}/200</span>
                       </div>
                     </div>
                   </div>
@@ -969,8 +971,8 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                   keepShowingSuggested={config.keepShowingSuggested}
                   collectFeedback={config.collectFeedback}
                   allowRegenerate={config.allowRegenerate}
-                  dismissibleNoticeHtml={config.dismissibleNoticeHtml}
-                  footerHtml={config.footerHtml}
+                  dismissibleNoticeText={config.dismissibleNoticeText}
+                  footerText={config.footerText}
                   autoShowInitial={config.autoShowInitial}
                   autoShowDelaySec={config.autoShowDelaySec}
                   widgetEnabled={config.widgetEnabled}

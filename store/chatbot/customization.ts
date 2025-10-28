@@ -1,8 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { ChatbotCustomizationPayload } from '@/types/customization';
-import { mapConfigToCustomizationPayload, UIConfigInput } from '@/lib/customization-mapper';
+import { ChatbotCustomizationPayload, ChatbotCustomizationPartial, UIConfigInput } from '@/types/customization';
 import { getWidgetConfig, updateWidgetConfig } from '@/lib/api/deploy';
 
 interface CustomizationState {
@@ -22,29 +21,29 @@ function payloadToUIConfig(payload: ChatbotCustomizationPayload): UIConfigInput 
   const p = payload.partial;
   const s = p.styles;
   return {
-    color: s.header_color || '#0e4b75',
-    widgetHeader: s.display_name || 'Support Bot',
-    welcomeMessage: (p.initial_messages?.[0] as string) || 'Hi! How can I help you today? 👋',
+    color: s.headerColor || '#0e4b75',
+    widgetHeader: s.displayName || 'Support Bot',
+    welcomeMessage: (p.initialMessages?.[0] as string) || 'Hi! How can I help you today? 👋',
     promptscript: '',
-    selectedIcon: (s.chat_icon as string) || 'chat',
-    customIcon: (s.profile_picture_file as string) || null,
-    buttonAlignment: s.align_chat_button || 'right',
+    selectedIcon: (s.chatIcon as string) || 'chat',
+    customIcon: (s.profilePictureFile as string) || null,
+    buttonAlignment: s.alignChatButton || 'right',
     showButtonText: false,
     widgetButtonText: 'Chat with us',
     chatWidth: '350px',
     chatHeight: '500px',
     displayStyle: 'corner',
-    domains: p.allowed_domains || [''],
-    starterQuestions: p.suggested_messages || [],
-    messagePlaceholder: s.message_placeholder || 'Message...',
-    initialMessagesText: (p.initial_messages || []).join('\n'),
-    keepShowingSuggested: !!s.continue_showing_suggested_messages,
-    collectFeedback: !!s.collect_user_feedback,
-    allowRegenerate: !!s.regenerate_messages,
-    dismissibleNoticeHtml: s.dismissable_notice || '',
-    footerHtml: s.footer || '',
-    autoShowInitial: (s.auto_open_chat_window_after ?? 0) > 0,
-    autoShowDelaySec: Number(s.auto_open_chat_window_after ?? 3),
+    domains: p.allowedDomains || [''],
+    starterQuestions: p.suggestedMessages || [],
+    messagePlaceholder: s.messagePlaceholder || 'Message...',
+    initialMessagesText: (p.initialMessages || []).join('\n'),
+    keepShowingSuggested: !!s.continueShowingSuggestedMessages,
+    collectFeedback: !!s.collectUserFeedback,
+    allowRegenerate: !!s.regenerateMessages,
+    dismissibleNoticeText: s.dismissableNoticeText || '',
+    footerText: s.footerText || '',
+    autoShowInitial: (s.autoOpenChatWindowAfter ?? 0) > 0,
+    autoShowDelaySec: Number(s.autoOpenChatWindowAfter ?? 3),
     widgetEnabled: true,
   };
 }
@@ -78,8 +77,46 @@ export const useCustomizationStore = create<CustomizationState>((set, get) => ({
     if (!draft) throw new Error('No draft configuration to save');
     set({ isSaving: true });
     try {
-      const payload = mapConfigToCustomizationPayload(String(chatbotId), draft);
-      const saved = await updateWidgetConfig(chatbotId, payload.partial);
+      // Build server payload (camelCase) directly from the UI draft
+      const initialMessages = draft.initialMessagesText
+        .split('\n')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      const suggestedMessages = draft.starterQuestions
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      const allowedDomains = (draft.domains || [])
+        .map((s) => (s || '').trim())
+        .filter((s) => s.length > 0);
+
+      const partial: ChatbotCustomizationPartial = {
+        styles: {
+          theme: 'light',
+          headerColor: draft.color,
+          userMessageColor: draft.color,
+          buttonColor: draft.color,
+          displayName: draft.widgetHeader,
+          profilePictureFile: draft.customIcon ?? null,
+          chatIcon: draft.customIcon ? null : draft.selectedIcon || null,
+          autoOpenChatWindowAfter: draft.autoShowInitial ? draft.autoShowDelaySec : 0,
+          alignChatButton: draft.buttonAlignment,
+          messagePlaceholder: draft.messagePlaceholder,
+          footerText: draft.footerText,
+          collectUserFeedback: draft.collectFeedback,
+          regenerateMessages: draft.allowRegenerate,
+          continueShowingSuggestedMessages: draft.keepShowingSuggested,
+          dismissableNoticeText: draft.dismissibleNoticeText,
+          hiddenPaths: [],
+        },
+        onlyAllowOnAddedDomains: false,
+        initialMessages: initialMessages.length ? initialMessages : [draft.welcomeMessage].filter(Boolean) as string[],
+        suggestedMessages,
+        allowedDomains: allowedDomains.length ? allowedDomains : [''],
+      };
+
+      const saved = await updateWidgetConfig(chatbotId, partial);
       set({ savedPayload: saved });
       return saved;
     } finally {

@@ -1,37 +1,74 @@
 export interface WidgetStyles {
-  theme: 'light' | 'dark';
-  header_color: string;
-  user_message_color: string;
-  button_color: string;
-  display_name: string;
-  profile_picture_file?: string | null;
-  chat_icon?: string | null;
-  auto_open_chat_window_after: number; // seconds
-  align_chat_button: 'left' | 'right';
-  message_placeholder: string;
-  footer: string; // HTML
-  collect_user_feedback: boolean;
-  regenerate_messages: boolean;
-  continue_showing_suggested_messages: boolean;
-  dismissable_notice: string; // HTML
-  hidden_paths: string[];
-}
+    theme: 'light' | 'dark';
 
-export interface ChannelSpecificInstructions {
-  // Extend later for channel overrides
-  [key: string]: unknown;
+    headerColor: string;
+
+    userMessageColor: string;
+
+    buttonColor: string;
+
+    displayName: string;
+
+    profilePictureFile?: string | null;
+
+    chatIcon?: string | null;
+
+    autoOpenChatWindowAfter: number; // seconds
+
+    alignChatButton: 'left' | 'right';
+
+    messagePlaceholder: string;
+
+    footerText: string;
+
+    collectUserFeedback: boolean;
+
+    regenerateMessages: boolean;
+
+    continueShowingSuggestedMessages: boolean;
+
+    dismissableNoticeText: string;
+
+    hiddenPaths: string[];
 }
 
 export interface ChatbotCustomizationPartial {
-  channel_specific_instructions: ChannelSpecificInstructions;
-  styles: WidgetStyles;
-  only_allow_on_added_domains: boolean;
-  initial_messages: string[];
-  suggested_messages: string[];
-  allowed_domains: string[];
+    styles: WidgetStyles;
+    onlyAllowOnAddedDomains: boolean;
+    initialMessages: string[];
+    suggestedMessages: string[];
+    allowedDomains: string[];
 }
 
 export interface ChatbotCustomizationPayload {
-  chatbotId: string;
-  partial: ChatbotCustomizationPartial;
+    chatbotId: string;
+    partial: ChatbotCustomizationPartial;
+}
+
+// Centralized UI config used by the editor screens (client-side state)
+export interface UIConfigInput {
+    color: string;
+    widgetHeader: string;
+    welcomeMessage: string;
+    promptscript: string;
+    selectedIcon: string;
+    customIcon: string | null;
+    buttonAlignment: 'left' | 'right';
+    showButtonText: boolean;
+    widgetButtonText: string;
+    chatWidth: string;
+    chatHeight: string;
+    displayStyle: 'corner' | 'overlay';
+    domains: string[];
+    starterQuestions: string[];
+    messagePlaceholder: string;
+    initialMessagesText: string;
+    keepShowingSuggested: boolean;
+    collectFeedback: boolean;
+    allowRegenerate: boolean;
+    dismissibleNoticeText: string;
+    footerText: string;
+    autoShowInitial: boolean;
+    autoShowDelaySec: number;
+    widgetEnabled: boolean;
 }

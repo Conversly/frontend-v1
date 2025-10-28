@@ -20,6 +20,7 @@ export const getWidgetConfig = async (chatbotId: string | number): Promise<GetWi
 	return res.data;
 };
 
+
 export const updateWidgetConfig = async (
 	chatbotId: string | number,
 	partial: UpdateWidgetRequest

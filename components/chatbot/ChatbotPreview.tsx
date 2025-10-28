@@ -20,8 +20,8 @@ interface ChatbotPreviewProps {
   keepShowingSuggested?: boolean
   collectFeedback?: boolean
   allowRegenerate?: boolean
-  dismissibleNoticeHtml?: string
-  footerHtml?: string
+  dismissibleNoticeText?: string
+  footerText?: string
   autoShowInitial?: boolean
   autoShowDelaySec?: number
   widgetEnabled?: boolean
@@ -43,8 +43,8 @@ export function ChatbotPreview({
   keepShowingSuggested = false,
   collectFeedback = true,
   allowRegenerate = true,
-  dismissibleNoticeHtml = "",
-  footerHtml = "",
+  dismissibleNoticeText = "",
+  footerText = "",
   autoShowInitial = true,
   autoShowDelaySec = 3,
   widgetEnabled = true,
@@ -125,10 +125,10 @@ export function ChatbotPreview({
           {/* Chat Area */}
           <div className="h-[460px] overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
             {/* Dismissible Notice */}
-            {!!dismissibleNoticeHtml && !hasUserMessaged && (
+            {!!dismissibleNoticeText && !hasUserMessaged && (
               <div className="rounded-lg border bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200 border-amber-200 dark:border-amber-700 p-3 flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 mt-0.5" />
-                <div className="text-sm" dangerouslySetInnerHTML={{ __html: dismissibleNoticeHtml }} />
+                <div className="text-sm whitespace-pre-wrap">{dismissibleNoticeText}</div>
               </div>
             )}
             {/* Starter Questions (Improved UI) */}
@@ -238,8 +238,8 @@ export function ChatbotPreview({
           {/* Input Area */}
           <div className="p-4 border-t bg-white dark:bg-gray-800">
             {/* Footer Content */}
-            {footerHtml && (
-              <div className="mb-2 text-xs text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: footerHtml }} />
+            {footerText && (
+              <div className="mb-2 text-xs text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{footerText}</div>
             )}
             <div className="flex items-center gap-2">
               <input
