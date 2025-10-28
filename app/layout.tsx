@@ -1,4 +1,5 @@
 import AppContextProvider from "@/contexts";
+import { ThemeProvider } from "@/components/shared/theme-provider";
 import { merge } from "@/utils/ui";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { Metadata } from "next";
@@ -54,7 +55,9 @@ export default function RootLayout({
         <GoogleOAuthProvider
           clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
         >
+          <ThemeProvider attribute="class" enableSystem>
             <AppContextProvider>{children}</AppContextProvider>
+          </ThemeProvider>
         </GoogleOAuthProvider>
       </body>
     </html>

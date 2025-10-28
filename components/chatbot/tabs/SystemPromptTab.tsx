@@ -12,7 +12,8 @@ import {
   Sparkles, 
   Save,
   RefreshCcw,
-  AlertCircle
+  AlertCircle,
+  Wand2
 } from 'lucide-react';
 
 interface SystemPromptTabProps {
@@ -65,7 +66,7 @@ const promptTemplates = [
 
 export function SystemPromptTab({ chatbotId, systemPrompt }: SystemPromptTabProps) {
   const [prompt, setPrompt] = useState(systemPrompt);
-  const { savePrompt, isSaving } = useSystemPromptStore();
+  const { savePrompt, improvePrompt, isSaving, isImproving } = useSystemPromptStore();
 
   const handleSave = async () => {
     try {
@@ -75,6 +76,23 @@ export function SystemPromptTab({ chatbotId, systemPrompt }: SystemPromptTabProp
       toast.success('System prompt updated successfully');
     } catch (error) {
       toast.error('Failed to update system prompt');
+    }
+  };
+
+  const handleImprovePrompt = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a prompt first');
+      return;
+    }
+
+    try {
+      await improvePrompt(prompt);
+      // Get the improved prompt from the store
+      const improvedPrompt = useSystemPromptStore.getState().draftPrompt;
+      setPrompt(improvedPrompt);
+      toast.success('Prompt improved successfully!');
+    } catch (error) {
+      toast.error('Failed to improve prompt');
     }
   };
 
@@ -101,15 +119,27 @@ export function SystemPromptTab({ chatbotId, systemPrompt }: SystemPromptTabProp
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPrompt(systemPrompt)}
-                    className="border-gray-800 text-white hover:bg-gray-800/50"
-                  >
-                    <RefreshCcw className="w-4 h-4 mr-2" />
-                    Reset
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleImprovePrompt}
+                      disabled={isImproving || !prompt.trim()}
+                      className="border-purple-500/30 text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/50"
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      {isImproving ? 'Improving...' : 'Improve'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPrompt(systemPrompt)}
+                      className="border-gray-800 text-white hover:bg-gray-800/50"
+                    >
+                      <RefreshCcw className="w-4 h-4 mr-2" />
+                      Reset
+                    </Button>
+                  </div>
                 </div>
                 <Textarea
                   value={prompt}

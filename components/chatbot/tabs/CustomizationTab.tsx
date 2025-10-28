@@ -62,6 +62,17 @@ interface ChatbotConfig {
   displayStyle: 'corner' | 'overlay';
   domains: string[];
   starterQuestions: string[];
+  // Content tab additions
+  messagePlaceholder: string;
+  initialMessagesText: string;
+  keepShowingSuggested: boolean;
+  collectFeedback: boolean;
+  allowRegenerate: boolean;
+  dismissibleNoticeHtml: string;
+  footerHtml: string;
+  autoShowInitial: boolean;
+  autoShowDelaySec: number;
+  widgetEnabled: boolean;
 }
 
 function SectionHeader({ 
@@ -123,6 +134,16 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
     displayStyle: 'corner',
     domains: [''],
     starterQuestions: ['What is this about?', 'How do I get started?', '', ''],
+    messagePlaceholder: 'Message...',
+    initialMessagesText: '',
+    keepShowingSuggested: false,
+    collectFeedback: true,
+    allowRegenerate: true,
+    dismissibleNoticeHtml: '',
+    footerHtml: '',
+    autoShowInitial: true,
+    autoShowDelaySec: 3,
+    widgetEnabled: true,
   });
 
   /** Helper to update config without rewriting the entire object each time. */
@@ -244,18 +265,39 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
   return (
     <TooltipProvider>
       <div className="space-y-8">
-        <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
-          <h2 className="font-heading text-2xl text-white mb-2">
-            Widget Customization
-          </h2>
-          <p className="font-sans text-base text-gray-400">
-            Customize your chatbot's appearance and behavior to match your website.
-          </p>
+        <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6 flex items-center justify-between">
+          <div>
+            <h2 className="font-heading text-2xl text-white mb-1">
+              Chat widget
+            </h2>
+            <p className="font-sans text-base text-gray-400">
+              Customize your chatbot's content, appearance and integrations.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-400">Widget status</span>
+            <input
+              type="checkbox"
+              checked={config.widgetEnabled}
+              onChange={(e) => updateConfig({ widgetEnabled: e.target.checked })}
+              className="w-5 h-5 rounded border-gray-700 bg-gray-800/50"
+            />
+          </div>
         </div>
 
-        {/* Main Settings Tabs */}
-        <Tabs defaultValue="appearance" className="space-y-6">
-          <TabsList className="bg-gray-900/60 p-1 rounded-xl">
+        {/* Two-column layout: settings left, preview right */}
+        <div className="grid lg:grid-cols-[1fr_500px] gap-6 items-start">
+          <div className="space-y-6">
+            {/* Main Settings Tabs */}
+            <Tabs defaultValue="content" className="space-y-6">
+              <TabsList className="bg-gray-900/60 p-1 rounded-xl flex flex-wrap">
+                <TabsTrigger 
+                  value="content" 
+                  className="font-sans text-base data-[state=active]:bg-gradient-to-r from-pink-500 to-purple-500 data-[state=active]:text-white"
+                >
+                  <Settings2 className="w-4 h-4 mr-2" />
+                  Content
+                </TabsTrigger>
             <TabsTrigger 
               value="appearance" 
               className="font-sans text-base data-[state=active]:bg-gradient-to-r from-pink-500 to-purple-500 data-[state=active]:text-white"
@@ -263,13 +305,13 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
               <Palette className="w-4 h-4 mr-2" />
               Appearance
             </TabsTrigger>
-            <TabsTrigger 
-              value="behavior" 
-              className="font-sans text-base data-[state=active]:bg-gradient-to-r from-pink-500 to-purple-500 data-[state=active]:text-white"
-            >
-              <Settings2 className="w-4 h-4 mr-2" />
-              Behavior
-            </TabsTrigger>
+                <TabsTrigger 
+                  value="ai" 
+                  className="font-sans text-base data-[state=active]:bg-gradient-to-r from-pink-500 to-purple-500 data-[state=active]:text-white"
+                >
+                  <BrainCircuit className="w-4 h-4 mr-2" />
+                  AI
+                </TabsTrigger>
             <TabsTrigger 
               value="integration" 
               className="font-sans text-base data-[state=active]:bg-gradient-to-r from-pink-500 to-purple-500 data-[state=active]:text-white"
@@ -277,9 +319,206 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
               <Code className="w-4 h-4 mr-2" />
               Integration
             </TabsTrigger>
-          </TabsList>
+              </TabsList>
 
-          <TabsContent value="appearance">
+              {/* Content Tab */}
+              <TabsContent value="content">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="space-y-6"
+                >
+                  {/* Display Name */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Display Name" 
+                      description="Controls the name displayed in the chat header"
+                      icon={MessageSquare}
+                    />
+                    <Input
+                      value={config.widgetHeader}
+                      onChange={(e) => updateConfig({ widgetHeader: e.target.value.slice(0, 100) })}
+                      maxLength={100}
+                      placeholder="Support Bot"
+                      className="bg-gray-800/50 border-gray-700/50 text-white"
+                    />
+                  </div>
+
+                  {/* Initial Messages */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Initial Messages" 
+                      description="Shown automatically when the chat opens"
+                      icon={MessageSquare}
+                    />
+                    <div className="space-y-2">
+                      <Textarea
+                        value={config.initialMessagesText}
+                        onChange={(e) => updateConfig({ initialMessagesText: e.target.value.slice(0, 1000) })}
+                        placeholder="Hi! What can I help you with?\nAsk me about pricing\n..."
+                        maxLength={1000}
+                        className="bg-gray-800/50 border-gray-700/50 text-white min-h-[120px]"
+                      />
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>Enter each message in a new line</span>
+                        <div className="flex items-center gap-3">
+                          <span>{config.initialMessagesText.length}/1000</span>
+                          <Button variant="outline" size="sm" className="border-gray-700 text-white hover:bg-gray-700/50" onClick={() => updateConfig({ initialMessagesText: '' })}>Reset</Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Suggested Messages */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6 space-y-4">
+                    <SectionHeader 
+                      title="Suggested Messages" 
+                      description="Quick replies shown as buttons"
+                      icon={ListPlus}
+                    />
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-gray-800/40 border border-gray-800/60">
+                      <span className="text-sm text-gray-300">Keep showing the suggested messages after the user's first message</span>
+                      <input type="checkbox" className="w-5 h-5" checked={config.keepShowingSuggested} onChange={(e) => updateConfig({ keepShowingSuggested: e.target.checked })} />
+                    </div>
+                    <div className="space-y-3">
+                      {config.starterQuestions.map((question, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <Input
+                            value={question}
+                            onChange={(e) => handleStarterQuestionChange(index, e.target.value)}
+                            placeholder={`Suggestion ${index + 1}`}
+                            className="bg-gray-800/50 border-gray-700/50 text-white"
+                          />
+                          {index >= 2 && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                const newQuestions = config.starterQuestions.filter((_, i) => i !== index);
+                                updateConfig({ starterQuestions: newQuestions });
+                              }}
+                              className="text-gray-400 hover:text-white hover:bg-gray-700"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button
+                        onClick={handleAddStarterQuestion}
+                        variant="outline"
+                        className="w-full border-gray-700 text-white hover:bg-gray-700/50"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add suggested message
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Message Placeholder */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Message Placeholder" 
+                      description="Shown inside the input before the user types"
+                      icon={MessageSquare}
+                    />
+                    <Input
+                      value={config.messagePlaceholder}
+                      onChange={(e) => updateConfig({ messagePlaceholder: e.target.value.slice(0, 100) })}
+                      placeholder="Message..."
+                      maxLength={100}
+                      className="bg-gray-800/50 border-gray-700/50 text-white"
+                    />
+                  </div>
+
+                  {/* Feedback and Regenerate */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6 space-y-4">
+                    <SectionHeader 
+                      title="User Actions" 
+                      description="Enable feedback and regenerate controls"
+                      icon={Sparkles}
+                    />
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-300">Collect user feedback on answers</span>
+                      <input type="checkbox" className="w-5 h-5" checked={config.collectFeedback} onChange={(e) => updateConfig({ collectFeedback: e.target.checked })} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-300">Allow regenerate last response</span>
+                      <input type="checkbox" className="w-5 h-5" checked={config.allowRegenerate} onChange={(e) => updateConfig({ allowRegenerate: e.target.checked })} />
+                    </div>
+                  </div>
+
+                  {/* Dismissible Notice */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Dismissible Notice" 
+                      description="Temporary notice shown until user's first message"
+                      icon={MessageSquare}
+                    />
+                    <div className="space-y-2">
+                      <Textarea
+                        value={config.dismissibleNoticeHtml}
+                        onChange={(e) => updateConfig({ dismissibleNoticeHtml: e.target.value.slice(0, 200) })}
+                        placeholder="Type a short notice. Basic HTML allowed."
+                        maxLength={200}
+                        className="bg-gray-800/50 border-gray-700/50 text-white min-h-[100px]"
+                      />
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>This notice hides after the user's first message</span>
+                        <span>{config.dismissibleNoticeHtml.length}/200</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Footer" 
+                      description="Persistent info at the bottom of the chat"
+                      icon={MessageSquare}
+                    />
+                    <div className="space-y-2">
+                      <Textarea
+                        value={config.footerHtml}
+                        onChange={(e) => updateConfig({ footerHtml: e.target.value.slice(0, 200) })}
+                        placeholder="Add a disclaimer or link. Basic HTML allowed."
+                        maxLength={200}
+                        className="bg-gray-800/50 border-gray-700/50 text-white min-h-[80px]"
+                      />
+                      <div className="flex items-center justify-between text-xs text-gray-400">
+                        <span>Shown above the input</span>
+                        <span>{config.footerHtml.length}/200</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Auto Show Initial Messages */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Auto Show Initial Messages" 
+                      description="Automatically show initial messages after a delay"
+                      icon={MessageSquare}
+                    />
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" className="w-5 h-5" checked={config.autoShowInitial} onChange={(e) => updateConfig({ autoShowInitial: e.target.checked })} />
+                        <span className="text-sm text-gray-300">Enable</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          value={config.autoShowDelaySec}
+                          onChange={(e) => updateConfig({ autoShowDelaySec: Number(e.target.value) })}
+                          className="w-24 bg-gray-800/50 border-gray-700/50 text-white"
+                        />
+                        <span className="text-sm text-gray-400">seconds</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="appearance">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -520,158 +759,61 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                 </div>
               </div>
             </motion.div>
-          </TabsContent>
+              </TabsContent>
 
-          <TabsContent value="behavior">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-6"
-            >
-              {/* Welcome Message */}
-              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
-                <SectionHeader 
-                  title="Welcome Message" 
-                  description="Set the initial message users see when opening the chat"
-                  icon={MessageSquare}
-                />
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="font-sans text-base text-gray-300">Initial Message</label>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="w-4 h-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-sans text-sm">This message appears when a user first opens the chat</p>
-                      </TooltipContent>
-                    </Tooltip>
+              {/* AI Tab */}
+              <TabsContent value="ai">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="space-y-6"
+                >
+                  {/* Welcome Message */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Welcome Message" 
+                      description="Initial bot message shown on open"
+                      icon={MessageSquare}
+                    />
+                    <Textarea
+                      value={config.welcomeMessage}
+                      onChange={(e) => updateConfig({ welcomeMessage: e.target.value })}
+                      placeholder="Hi! How can I help you today? 👋"
+                      className="bg-gray-800/50 border-gray-700/50 text-white min-h-[100px]"
+                    />
                   </div>
-                  <Textarea
-                    value={config.welcomeMessage}
-                    onChange={(e) => updateConfig({ welcomeMessage: e.target.value })}
-                    placeholder="Hi! How can I help you today? 👋"
-                    className="bg-gray-800/50 border-gray-700/50 text-white min-h-[100px]"
-                  />
-                </div>
-              </div>
 
-              {/* Prompt Script */}
-              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
-                <SectionHeader 
-                  title="System Prompt" 
-                  description="Define your assistant's personality and behavior"
-                  icon={BrainCircuit}
-                />
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="font-sans text-base text-gray-300">Prompt Script</label>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="w-4 h-4 text-gray-400" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-sans text-sm">This script defines how your AI assistant behaves and responds</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  {/* Prompt Script */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="System Prompt" 
+                      description="Define your assistant's personality and behavior"
+                      icon={BrainCircuit}
+                    />
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <label className="font-sans text-base text-gray-300">Prompt Script</label>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <HelpCircle className="w-4 h-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="font-sans text-sm">This script defines how your AI assistant behaves and responds</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Textarea
+                        value={config.promptscript}
+                        onChange={(e) => updateConfig({ promptscript: e.target.value })}
+                        placeholder="You are a helpful assistant..."
+                        className="bg-gray-800/50 border-gray-700/50 text-white min-h-[200px]"
+                      />
+                    </div>
                   </div>
-                  <Textarea
-                    value={config.promptscript}
-                    onChange={(e) => updateConfig({ promptscript: e.target.value })}
-                    placeholder="You are a helpful assistant..."
-                    className="bg-gray-800/50 border-gray-700/50 text-white min-h-[200px]"
-                  />
-                </div>
-              </div>
+                </motion.div>
+              </TabsContent>
 
-              {/* Starter Questions */}
-              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
-                <SectionHeader 
-                  title="Starter Questions" 
-                  description="Suggest questions to help users get started"
-                  icon={ListPlus}
-                />
-                
-                <div className="space-y-4">
-                  {config.starterQuestions.map((question, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <Input
-                        value={question}
-                        onChange={(e) => handleStarterQuestionChange(index, e.target.value)}
-                        placeholder={`Suggestion ${index + 1}`}
-                        className="bg-gray-800/50 border-gray-700/50 text-white"
-                      />
-                      {index >= 2 && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            const newQuestions = config.starterQuestions.filter((_, i) => i !== index);
-                            updateConfig({ starterQuestions: newQuestions });
-                          }}
-                          className="text-gray-400 hover:text-white hover:bg-gray-700"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  <Button
-                    onClick={handleAddStarterQuestion}
-                    variant="outline"
-                    className="w-full border-gray-700 text-white hover:bg-gray-700/50"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Question
-                  </Button>
-                </div>
-              </div>
-
-              {/* Allowed Domains */}
-              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
-                <SectionHeader 
-                  title="Allowed Domains" 
-                  description="Control which websites can embed your chatbot"
-                  icon={Globe}
-                />
-                
-                <div className="space-y-4">
-                  {config.domains.map((domain, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <Input
-                        value={domain}
-                        onChange={(e) => handleDomainChange(index, e.target.value)}
-                        placeholder="https://example.com"
-                        className="bg-gray-800/50 border-gray-700/50 text-white"
-                      />
-                      {config.domains.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveDomain(index)}
-                          className="text-gray-400 hover:text-white hover:bg-gray-700"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  <Button
-                    onClick={handleAddDomain}
-                    variant="outline"
-                    className="w-full border-gray-700 text-white hover:bg-gray-700/50"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Domain
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="integration">
+              <TabsContent value="integration">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -704,7 +846,7 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                 </div>
               </div>
 
-              {/* Integration Code */}
+                  {/* Integration Code */}
               <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
                 <SectionHeader 
                   title="Widget Code" 
@@ -744,39 +886,91 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                   </TabsContent>
                 </Tabs>
               </div>
-
-              {/* Preview */}
-              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
-                <SectionHeader 
-                  title="Live Preview" 
-                  description="See how your chatbot will appear on your website"
-                  icon={Sparkles}
-                />
-                
-                <div className="mt-6">
-                  <ChatbotPreview
-                    color={config.color}
-                    selectedIcon={
-                      config.customIcon ? (
-                        <img src={config.customIcon} alt="Custom Icon" className="w-6 h-6" />
-                      ) : (
-                        icons.find((icon) => icon.id === config.selectedIcon)?.component
-                      )
-                    }
-                    buttonAlignment={config.buttonAlignment}
-                    showButtonText={config.showButtonText}
-                    buttonText={config.widgetButtonText}
-                    welcomeMessage={config.welcomeMessage}
-                    displayStyle={config.displayStyle}
-                    customIcon={config.customIcon}
-                    starterQuestions={config.starterQuestions}
-                    HeaderText={config.widgetHeader}
-                  />
-                </div>
-              </div>
+                  {/* Allowed Domains */}
+                  <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+                    <SectionHeader 
+                      title="Allowed Domains" 
+                      description="Control which websites can embed your chatbot"
+                      icon={Globe}
+                    />
+                    <div className="space-y-4">
+                      {config.domains.map((domain, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <Input
+                            value={domain}
+                            onChange={(e) => handleDomainChange(index, e.target.value)}
+                            placeholder="https://example.com"
+                            className="bg-gray-800/50 border-gray-700/50 text-white"
+                          />
+                          {config.domains.length > 1 && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleRemoveDomain(index)}
+                              className="text-gray-400 hover:text-white hover:bg-gray-700"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button
+                        onClick={handleAddDomain}
+                        variant="outline"
+                        className="w-full border-gray-700 text-white hover:bg-gray-700/50"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Domain
+                      </Button>
+                    </div>
+                  </div>
             </motion.div>
-          </TabsContent>
-        </Tabs>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Preview Right Column */}
+          <div className="sticky top-6 self-start">
+            <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-6">
+              <SectionHeader 
+                title="Live Preview" 
+                description="See how your chatbot will appear on your website"
+                icon={Sparkles}
+              />
+              <div className="mt-6 flex justify-center">
+                <ChatbotPreview
+                  color={config.color}
+                  selectedIcon={
+                    config.customIcon ? (
+                      <img src={config.customIcon} alt="Custom Icon" className="w-6 h-6" />
+                    ) : (
+                      icons.find((icon) => icon.id === config.selectedIcon)?.component
+                    )
+                  }
+                  buttonAlignment={config.buttonAlignment}
+                  showButtonText={config.showButtonText}
+                  buttonText={config.widgetButtonText}
+                  welcomeMessage={config.welcomeMessage}
+                  displayStyle={config.displayStyle}
+                  customIcon={config.customIcon}
+                  starterQuestions={config.starterQuestions}
+                  HeaderText={config.widgetHeader}
+                  // New content props
+                  inputPlaceholder={config.messagePlaceholder}
+                  initialMessages={config.initialMessagesText.split('\n').filter((l) => l.trim() !== '')}
+                  keepShowingSuggested={config.keepShowingSuggested}
+                  collectFeedback={config.collectFeedback}
+                  allowRegenerate={config.allowRegenerate}
+                  dismissibleNoticeHtml={config.dismissibleNoticeHtml}
+                  footerHtml={config.footerHtml}
+                  autoShowInitial={config.autoShowInitial}
+                  autoShowDelaySec={config.autoShowDelaySec}
+                  widgetEnabled={config.widgetEnabled}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </TooltipProvider>
   );

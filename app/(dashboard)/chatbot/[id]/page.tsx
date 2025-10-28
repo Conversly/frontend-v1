@@ -124,7 +124,7 @@ export default function ChatbotCustomizationPage() {
         <main className="mt-8">
           <Tabs defaultValue={activeTab} onValueChange={(value) => setActiveTab(value as TabValue)} className="space-y-8">
             <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-4">
-              <TabsList className="grid grid-cols-6 gap-2 bg-transparent">
+              <TabsList className="grid grid-cols-6 gap-2 bg-transparent w-full mb-4">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.value}
@@ -142,18 +142,8 @@ export default function ChatbotCustomizationPage() {
               </TabsList>
 
               {/* Tab Descriptions */}
-              <div className="mt-4 font-sans text-gray-400 text-sm">
-                {tabs.map((tab) => (
-                  <motion.div
-                    key={tab.value}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="hidden data-[state=active]:block"
-                    data-state={tab.value === "data" ? "active" : "inactive"}
-                  >
-                    {tab.description}
-                  </motion.div>
-                ))}
+              <div className="font-sans text-gray-400 text-sm text-left pt-12 border-t border-gray-800/40">
+                {tabs.find(tab => tab.value === activeTab)?.description}
               </div>
             </div>
 
