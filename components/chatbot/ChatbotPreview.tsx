@@ -14,7 +14,7 @@ interface ChatbotPreviewProps {
   customIcon: string | null
   starterQuestions: string[]
   HeaderText: string
-  // New content customization props
+  
   inputPlaceholder?: string
   initialMessages?: string[]
   keepShowingSuggested?: boolean

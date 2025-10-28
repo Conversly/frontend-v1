@@ -31,6 +31,11 @@ export const API = {
       BASE_URL: () => "/analytics",
       GET_ANALYTICS: () => "/:chatbotId",
     },
+    DEPLOY: {
+      BASE_URL: () => "/deploy",
+      WIDGET: () => "/widget/:chatbotId",  // get
+      UPDATE_CHATBOT_WIDGET: () => "/widget/:chatbotId",  // post
+    }
   },
 };
 

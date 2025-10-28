@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,8 @@ import { toast } from 'sonner';
 import { ChatbotPreview } from '@/components/chatbot/ChatbotPreview';
 import { Highlight, themes } from 'prism-react-renderer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useCustomizationDraft, useCustomizationStore } from '@/store/chatbot/customization';
+import type { UIConfigInput } from '@/lib/customization-mapper';
 
 interface CustomizationTabProps {
   chatbotId: string;
@@ -47,33 +49,7 @@ interface CustomizationTabProps {
  * A central interface for all chatbot configuration,
  * making it easier to store and manage the entire config in a single object. 
  */
-interface ChatbotConfig {
-  color: string;
-  widgetHeader: string;
-  welcomeMessage: string;
-  promptscript: string;
-  selectedIcon: string;
-  customIcon: string | null;
-  buttonAlignment: 'left' | 'right';
-  showButtonText: boolean;
-  widgetButtonText: string;
-  chatWidth: string;
-  chatHeight: string;
-  displayStyle: 'corner' | 'overlay';
-  domains: string[];
-  starterQuestions: string[];
-  // Content tab additions
-  messagePlaceholder: string;
-  initialMessagesText: string;
-  keepShowingSuggested: boolean;
-  collectFeedback: boolean;
-  allowRegenerate: boolean;
-  dismissibleNoticeHtml: string;
-  footerHtml: string;
-  autoShowInitial: boolean;
-  autoShowDelaySec: number;
-  widgetEnabled: boolean;
-}
+// We now use the centralized UI config from the customization store (UIConfigInput)
 
 function SectionHeader({ 
   title, 
@@ -115,11 +91,12 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
     { id: 'message', component: <MessageSquare className="w-6 h-6" /> },
   ];
 
-  /**
-   * A single piece of state (`config`) holding all the settings 
-   * instead of multiple separate useState hooks.
-   */
-  const [config, setConfig] = useState<ChatbotConfig>({
+  // Pull centralized draft + actions from the store
+  const draft = useCustomizationDraft();
+  const { setDraftConfig, loadCustomization, saveCustomization, resetDraftFromSaved, isSaving, isLoading } = useCustomizationStore();
+
+  // Local default to seed the store on first mount (matches previous defaults)
+  const defaultConfig: UIConfigInput = {
     color: '#0e4b75',
     widgetHeader: 'Support Bot',
     welcomeMessage: 'Hi! How can I help you today? 👋',
@@ -144,38 +121,48 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
     autoShowInitial: true,
     autoShowDelaySec: 3,
     widgetEnabled: true,
-  });
+  };
 
-  /** Helper to update config without rewriting the entire object each time. */
-  const updateConfig = (updates: Partial<ChatbotConfig>) => {
-    setConfig((prev) => ({ ...prev, ...updates }));
+  // Ensure we have a draft in the store, then try to load server config
+  useEffect(() => {
+    if (!draft) setDraftConfig(defaultConfig);
+    // Fire and forget load; if it fails, keep defaults
+    loadCustomization(chatbotId).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatbotId]);
+
+  const config: UIConfigInput = draft ?? defaultConfig;
+
+  // Helper to update draft without rewriting entire object each time
+  const updateConfig = (updates: Partial<UIConfigInput>) => {
+    setDraftConfig({ ...config, ...updates });
   };
 
   /** Domain management */
   const handleAddDomain = () => {
-    updateConfig({ domains: [...config.domains, ''] });
+  updateConfig({ domains: [...config.domains, ''] });
   };
 
   const handleDomainChange = (index: number, value: string) => {
     const newDomains = [...config.domains];
     newDomains[index] = value;
-    updateConfig({ domains: newDomains });
+  updateConfig({ domains: newDomains });
   };
 
   const handleRemoveDomain = (index: number) => {
     const newDomains = config.domains.filter((_, i) => i !== index);
-    updateConfig({ domains: newDomains });
+  updateConfig({ domains: newDomains });
   };
 
   /** Starter questions management */
   const handleStarterQuestionChange = (index: number, value: string) => {
     const newQuestions = [...config.starterQuestions];
     newQuestions[index] = value;
-    updateConfig({ starterQuestions: newQuestions });
+  updateConfig({ starterQuestions: newQuestions });
   };
 
   const handleAddStarterQuestion = () => {
-    updateConfig({ starterQuestions: [...config.starterQuestions, ''] });
+  updateConfig({ starterQuestions: [...config.starterQuestions, ''] });
   };
 
   /** File upload helper to convert icon to base64 */
@@ -282,6 +269,27 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
               onChange={(e) => updateConfig({ widgetEnabled: e.target.checked })}
               className="w-5 h-5 rounded border-gray-700 bg-gray-800/50"
             />
+            <Button
+              disabled={isSaving}
+              onClick={async () => {
+                try {
+                  await saveCustomization(chatbotId);
+                  toast.success('Customization saved');
+                } catch (err: any) {
+                  toast.error(err?.message || 'Failed to save');
+                }
+              }}
+              className="ml-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:opacity-90"
+            >
+              {isSaving ? 'Saving…' : 'Save'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => resetDraftFromSaved()}
+              className="ml-2 border-gray-700 text-white hover:bg-gray-700/50"
+            >
+              Reset
+            </Button>
           </div>
         </div>
 
