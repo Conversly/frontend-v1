@@ -1,38 +1,41 @@
 export interface WidgetStyles {
-    theme: 'light' | 'dark';
-
-    headerColor: string;
-
-    userMessageColor: string;
-
-    buttonColor: string;
-
-    displayName: string;
-
-    profilePictureFile?: string | null;
-
-    chatIcon?: string | null;
-
-    autoOpenChatWindowAfter: number; // seconds
-
-    alignChatButton: 'left' | 'right';
-
+    appearance: 'light' | 'dark';  // renamed from 'theme'
+    displayStyle: 'corner' | 'overlay';  // NEW: corner or overlay
+    displayName: string;  // keeping camelCase in DB
+    
+    // Colors
+    primaryColor: string;  // replaces headerColor, buttonColor
+    widgetBubbleColour: string;  // for message bubbles
+    
+    // Icons & Assets
+    PrimaryIcon: string;  // renamed from profilePictureFile : url
+    widgeticon: string;  // renamed from chatIcon (for the widget button icon) : url
+    
+    // Button Configuration
+    alignChatButton: 'left' | 'right';  // maps to buttonAlignment in frontend
+    showButtonText: boolean;  // boolean : true/false to show text on widget button
+    buttonText: string;  // text shown on widget button
+    
+    // Messages & Placeholders
     messagePlaceholder: string;
-
-    footerText: string;
-
-    collectUserFeedback: boolean;
-
-    regenerateMessages: boolean;
-
-    continueShowingSuggestedMessages: boolean;
-
-    dismissableNoticeText: string;
-
-    hiddenPaths: string[];
+    footerText: string;  // HTML
+    dismissableNoticeText: string;  // maps to dismissibleNoticeText. HTML
+    
+    // Dimensions
+    chatWidth: string;
+    chatHeight: string;  
+    
+    // Behavior Flags
+    autoShowInitial: boolean;  // replaces autoOpenChatWindowAfter > 0 check
+    autoShowDelaySec: number;  // renamed from autoOpenChatWindowAfter
+    collectUserFeedback: boolean;  // maps to collectFeedback
+    regenerateMessages: boolean;  // maps to allowRegenerate
+    continueShowingSuggestedMessages: boolean;  // maps to keepShowingSuggested
 }
 
-export interface ChatbotCustomizationPartial {
+
+
+export interface ChatbotCustomization {
     styles: WidgetStyles;
     onlyAllowOnAddedDomains: boolean;
     initialMessage: string;
@@ -40,35 +43,46 @@ export interface ChatbotCustomizationPartial {
     allowedDomains: string[];
 }
 
-export interface ChatbotCustomizationPayload {
+export interface ChatbotWidget {
     chatbotId: string;
-    partial: ChatbotCustomizationPartial;
+    partial: ChatbotCustomization;
 }
 
-// Centralized UI config used by the editor screens (client-side state)
+// Type aliases for backward compatibility
+export type ChatbotCustomizationPayload = ChatbotWidget;
+export type ChatbotCustomizationPartial = ChatbotCustomization;
+
 export interface UIConfigInput {
-    color: string;
-    widgetHeader: string;
-    welcomeMessage: string;
-    promptscript: string;
-    selectedIcon: string;
-    customIcon: string | null;
-    buttonAlignment: 'left' | 'right';
-    showButtonText: boolean;
-    widgetButtonText: string;
-    chatWidth: string;
-    chatHeight: string;
-    displayStyle: 'corner' | 'overlay';
-    domains: string[];
-    starterQuestions: string[];
-    messagePlaceholder: string;
-    initialMessagesText: string;
-    keepShowingSuggested: boolean;
-    collectFeedback: boolean;
-    allowRegenerate: boolean;
-    dismissibleNoticeText: string;
-    footerText: string;
-    autoShowInitial: boolean;
-    autoShowDelaySec: number;
-    widgetEnabled: boolean;
+  // Message / content related
+  DisplayName: string;
+  InitialMessage: string;
+  starterQuestions: string[];
+  messagePlaceholder: string;
+  keepShowingSuggested: boolean;
+  collectFeedback: boolean;
+  allowRegenerate: boolean;
+  dismissibleNoticeText: string;
+  footerText: string;
+
+  // Behaviour / other
+  autoShowInitial: boolean;
+  autoShowDelaySec: number;
+  widgetEnabled: boolean;
+
+  // Style / colour / icons / layout
+  primaryColor: string;
+  widgetBubbleColour: string;
+  PrimaryIcon: string;
+  widgeticon: string;
+  buttonAlignment: 'left' | 'right';
+  showButtonText: boolean;
+  buttonText: string;
+  appearance: 'light' | 'dark';
+  widgetButtonText: string;
+  chatWidth: string;
+  chatHeight: string;
+  displayStyle: 'corner' | 'overlay';
+  converslyWebId: string;
+  uniqueClientId: string;
+  testing?: boolean;
 }

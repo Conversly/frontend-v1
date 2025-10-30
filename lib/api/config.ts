@@ -36,6 +36,10 @@ export const API = {
       BASE_URL: () => "/deploy",
       WIDGET: () => "/widget/:chatbotId",  // get
       UPDATE_CHATBOT_WIDGET: () => "/widget",  // post
+      GET_DOMAIN_ALLOWLIST: () => "/widget/domains/:chatbotId",  // get
+      UPDATE_DOMAIN_ALLOWLIST: () => "/widget/domains",  // post
+      GET_API_KEY: () => "/key/:chatbotId",  // get
+      CREATE_API_KEY: () => "/key/:chatbotId",  // post
     },
     RESPONSE: {
       BASE_URL: () => "/response",
