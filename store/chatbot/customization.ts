@@ -23,7 +23,7 @@ function payloadToUIConfig(payload: ChatbotCustomizationPayload): UIConfigInput 
   return {
     color: s.headerColor || '#0e4b75',
     widgetHeader: s.displayName || 'Support Bot',
-    welcomeMessage: (p.initialMessages?.[0] as string) || 'Hi! How can I help you today? 👋',
+    welcomeMessage: (p.initialMessage as string) || 'Hi! How can I help you today? 👋',
     promptscript: '',
     selectedIcon: (s.chatIcon as string) || 'chat',
     customIcon: (s.profilePictureFile as string) || null,
@@ -36,7 +36,7 @@ function payloadToUIConfig(payload: ChatbotCustomizationPayload): UIConfigInput 
     domains: p.allowedDomains || [''],
     starterQuestions: p.suggestedMessages || [],
     messagePlaceholder: s.messagePlaceholder || 'Message...',
-    initialMessagesText: (p.initialMessages || []).join('\n'),
+    initialMessagesText: (p.initialMessage || ''),
     keepShowingSuggested: !!s.continueShowingSuggestedMessages,
     collectFeedback: !!s.collectUserFeedback,
     allowRegenerate: !!s.regenerateMessages,
@@ -78,10 +78,7 @@ export const useCustomizationStore = create<CustomizationState>((set, get) => ({
     set({ isSaving: true });
     try {
       // Build server payload (camelCase) directly from the UI draft
-      const initialMessages = draft.initialMessagesText
-        .split('\n')
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
+      const initialMessage = draft.initialMessagesText.trim();
 
       const suggestedMessages = draft.starterQuestions
         .map((s) => s.trim())
@@ -111,9 +108,9 @@ export const useCustomizationStore = create<CustomizationState>((set, get) => ({
           hiddenPaths: [],
         },
         onlyAllowOnAddedDomains: false,
-        initialMessages: initialMessages.length ? initialMessages : [draft.welcomeMessage].filter(Boolean) as string[],
+        initialMessage,
         suggestedMessages,
-        allowedDomains: allowedDomains.length ? allowedDomains : [''],
+        allowedDomains,
       };
 
       const saved = await updateWidgetConfig(chatbotId, partial);

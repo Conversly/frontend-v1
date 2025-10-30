@@ -1,5 +1,6 @@
 export const API = {
   BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  RESPONSE_BASE_URL: process.env.NEXT_PUBLIC_RESPONSE_API_BASE_URL,
   ENDPOINTS: {
     USER: {
       BASE_URL: () => "/user",
@@ -34,7 +35,11 @@ export const API = {
     DEPLOY: {
       BASE_URL: () => "/deploy",
       WIDGET: () => "/widget/:chatbotId",  // get
-      UPDATE_CHATBOT_WIDGET: () => "/widget/:chatbotId",  // post
+      UPDATE_CHATBOT_WIDGET: () => "/widget",  // post
+    },
+    RESPONSE: {
+      BASE_URL: () => "/response",
+      FEEDBACK: () => "/feedback",  // post
     }
   },
 };

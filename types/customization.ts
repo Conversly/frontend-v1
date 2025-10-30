@@ -35,7 +35,7 @@ export interface WidgetStyles {
 export interface ChatbotCustomizationPartial {
     styles: WidgetStyles;
     onlyAllowOnAddedDomains: boolean;
-    initialMessages: string[];
+    initialMessage: string;
     suggestedMessages: string[];
     allowedDomains: string[];
 }
