@@ -39,10 +39,15 @@ export interface ApiKeyGetResponse {
 }
 
 export const getWidgetConfig = async (chatbotId: string | number): Promise<GetWidgetResponse> => {
-	const endpoint = API.ENDPOINTS.DEPLOY.WIDGET().replace(':chatbotId', String(chatbotId));
+	const endpoint = API.ENDPOINTS.DEPLOY.WIDGET();
 	const res = await fetch(
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
-		{ method: 'GET' }
+		{
+			method: 'GET',
+			params: {
+				chatbotId: String(chatbotId)
+			}
+		}
 	).then((r) => r.data) as ApiResponse<GetWidgetResponse, Error>;
 
 	if (!res.success) {
@@ -59,7 +64,13 @@ export const updateWidgetConfig = async (
 	const endpoint = API.ENDPOINTS.DEPLOY.UPDATE_CHATBOT_WIDGET();
 	const res = await fetch(
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
-		{ method: 'POST', data: { chatbotId, partial } }
+		{
+			method: 'POST',
+			data: partial,
+			params: {
+				chatbotId: String(chatbotId)
+			}
+		}
 	).then((r) => r.data) as ApiResponse<UpdateWidgetResponse, Error>;
 
 	if (!res.success) {
@@ -70,10 +81,15 @@ export const updateWidgetConfig = async (
 
 // Domain Management Functions
 export const getDomainAllowlist = async (chatbotId: string | number): Promise<AllowedDomainsResponse> => {
-	const endpoint = API.ENDPOINTS.DEPLOY.GET_DOMAIN_ALLOWLIST().replace(':chatbotId', String(chatbotId));
+	const endpoint = API.ENDPOINTS.DEPLOY.GET_DOMAIN_ALLOWLIST();
 	const res = await fetch(
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
-		{ method: 'GET' }
+		{
+			method: 'GET',
+			params: {
+				chatbotId: String(chatbotId)
+			}
+		}
 	).then((r) => r.data) as ApiResponse<AllowedDomainsResponse, Error>;
 
 	if (!res.success) {
@@ -89,7 +105,13 @@ export const addDomainToAllowlist = async (
 	const endpoint = API.ENDPOINTS.DEPLOY.UPDATE_DOMAIN_ALLOWLIST();
 	const res = await fetch(
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
-		{ method: 'POST', data: { chatbotId, domain } }
+		{
+			method: 'POST',
+			data: { domain },
+			params: {
+				chatbotId: String(chatbotId)
+			}
+		}
 	).then((r) => r.data) as ApiResponse<AddDomainResponse, Error>;
 
 	if (!res.success) {
@@ -100,10 +122,15 @@ export const addDomainToAllowlist = async (
 
 // API Key Management Functions
 export const getApiKey = async (chatbotId: string | number): Promise<ApiKeyGetResponse> => {
-	const endpoint = API.ENDPOINTS.DEPLOY.GET_API_KEY().replace(':chatbotId', String(chatbotId));
+	const endpoint = API.ENDPOINTS.DEPLOY.GET_API_KEY();
 	const res = await fetch(
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
-		{ method: 'GET' }
+		{
+			method: 'GET',
+			params: {
+				chatbotId: String(chatbotId)
+			}
+		}
 	).then((r) => r.data) as ApiResponse<ApiKeyGetResponse, Error>;
 
 	if (!res.success) {
@@ -113,10 +140,15 @@ export const getApiKey = async (chatbotId: string | number): Promise<ApiKeyGetRe
 };
 
 export const createApiKey = async (chatbotId: string | number): Promise<ApiKeyResponse> => {
-	const endpoint = API.ENDPOINTS.DEPLOY.CREATE_API_KEY().replace(':chatbotId', String(chatbotId));
+	const endpoint = API.ENDPOINTS.DEPLOY.CREATE_API_KEY();
 	const res = await fetch(
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
-		{ method: 'POST' }
+		{
+			method: 'POST',
+			params: {
+				chatbotId: String(chatbotId)
+			}
+		}
 	).then((r) => r.data) as ApiResponse<ApiKeyResponse, Error>;
 
 	if (!res.success) {

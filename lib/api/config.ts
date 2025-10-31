@@ -34,13 +34,14 @@ export const API = {
     },
     DEPLOY: {
       BASE_URL: () => "/deploy",
-      WIDGET: () => "/widget/:chatbotId",  // get
+      WIDGET: () => "/widget/config",  // get
       UPDATE_CHATBOT_WIDGET: () => "/widget",  // post
-      GET_DOMAIN_ALLOWLIST: () => "/widget/domains/:chatbotId",  // get
+      GET_DOMAIN_ALLOWLIST: () => "/widget/domains",  // get
       UPDATE_DOMAIN_ALLOWLIST: () => "/widget/domains",  // post
-      GET_API_KEY: () => "/key/:chatbotId",  // get
-      CREATE_API_KEY: () => "/key/:chatbotId",  // post
+      GET_API_KEY: () => "/key",  // get
+      CREATE_API_KEY: () => "/key",  // post
     },
+    
     RESPONSE: {
       BASE_URL: () => "/response",
       FEEDBACK: () => "/feedback",  // post

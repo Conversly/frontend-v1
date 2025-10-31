@@ -23,9 +23,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trench",
+  title: "ConverslyAI",
   description:
-    "One-click sniping, blazing trades, and lower fees—because bull run's too short for slow trades",
+    "ConverslyAI - Empowering Conversations with Intelligent Chatbots",
 };
 
 export default function RootLayout({
