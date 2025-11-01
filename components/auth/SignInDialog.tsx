@@ -61,9 +61,9 @@ export function SignInDialog({ isOpen, onClose }: SignInDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden" showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle className="sr-only">Sign in to Trench</DialogTitle>
+          <DialogTitle className="sr-only">Sign in to Conversly</DialogTitle>
         </DialogHeader>
         <AnimatePresence>
           <div className="relative">
@@ -94,7 +94,9 @@ export function SignInDialog({ isOpen, onClose }: SignInDialogProps) {
 
             {/* Auth Section */}
             <div className="p-6">
-              <GoogleAuth onLoadingChange={handleAuthLoadingChange} />
+              <div className="flex justify-center">
+                <GoogleAuth onLoadingChange={handleAuthLoadingChange} />
+              </div>
               
               {/* Marketing Points */}
               <div className="space-y-4 pt-4 border-t">

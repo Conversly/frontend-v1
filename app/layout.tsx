@@ -5,6 +5,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./chatbot-isolation.css";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -37,14 +38,19 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      {isTesting && (
-        <head>
+      <head>
+        {isTesting && (
           <script
             crossOrigin="anonymous"
             src="//unpkg.com/react-scan/dist/auto.global.js"
           />
-        </head>
-      )}
+        )}
+        <script
+          src="https://tuveroqvhzgyatcq.public.blob.vercel-storage.com/loader.min.js"
+          data-chatbot-id="6"
+          defer
+        />
+      </head>
       <body
         className={merge(
           geist.variable,

@@ -29,6 +29,9 @@ export const useAuth = create<AuthState>()(
           });
         }
 
+        // Clear localStorage flag
+        localStorage.setItem(LOCAL_STORAGE_KEY.IS_LOGGED_IN, "false");
+
         set({
           user: null,
           isUserFetching: false,
