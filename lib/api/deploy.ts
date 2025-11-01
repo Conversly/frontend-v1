@@ -66,9 +66,9 @@ export const updateWidgetConfig = async (
 		API.ENDPOINTS.DEPLOY.BASE_URL() + endpoint,
 		{
 			method: 'POST',
-			data: partial,
-			params: {
-				chatbotId: String(chatbotId)
+			data: {
+				chatbotId: String(chatbotId),
+				partial
 			}
 		}
 	).then((r) => r.data) as ApiResponse<UpdateWidgetResponse, Error>;
