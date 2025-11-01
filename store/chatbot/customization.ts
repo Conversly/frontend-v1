@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { ChatbotCustomizationPayload, ChatbotCustomizationPartial, UIConfigInput } from '@/types/customization';
+import { ChatbotCustomizationPayload, ChatbotCustomizationPartial, UIConfigInput, WidgetStyles } from '@/types/customization';
 import { 
   getWidgetConfig, 
   updateWidgetConfig, 
@@ -46,7 +46,7 @@ interface CustomizationState {
 
 function payloadToUIConfig(payload: ChatbotCustomizationPayload): UIConfigInput {
   const p = payload.partial;
-  const s = p.styles;
+  const s = (p.styles ?? {}) as WidgetStyles;
   return {
     DisplayName: s.displayName || 'Support Bot',
     InitialMessage: (p.initialMessage as string) || 'Hi! How can I help you today? 👋',
@@ -150,7 +150,6 @@ export const useCustomizationStore = create<CustomizationState>((set, get) => ({
         onlyAllowOnAddedDomains: false,
         initialMessage,
         suggestedMessages,
-        allowedDomains: [], // No longer managed here
       };
 
       const saved = await updateWidgetConfig(chatbotId, partial);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
+import type React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Bot,
@@ -46,7 +47,6 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
     saveCustomization, 
     resetDraftFromSaved, 
     isSaving, 
-    isLoading,
     // Domain management
     domains,
     isLoadingDomains,
@@ -274,7 +274,9 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                     config.PrimaryIcon ? (
                       <img src={config.PrimaryIcon} alt="Custom Icon" className="w-6 h-6" />
                     ) : (
-                      icons.find((icon) => icon.id === config.widgeticon)?.component
+                      icons.find((icon) => icon.id === config.widgeticon)?.component ?? (
+                        <MessageCircle className="w-6 h-6" />
+                      )
                     )
                   }
                   buttonAlignment={config.buttonAlignment}
