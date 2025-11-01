@@ -98,7 +98,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Navigation Links */}
-                <nav className="hidden md:flex items-center gap-8">
+                <nav className="flex items-center gap-8">
                   <Link
                     href="#features"
                     className="text-gray-300 hover:text-white transition-colors"
@@ -171,7 +171,7 @@ export default function Navbar() {
                     <>
                       <Button
                         variant="ghost"
-                        className="hidden sm:inline-flex text-gray-300 hover:text-white hover:bg-gray-800/50"
+                        className="text-gray-300 hover:text-white hover:bg-gray-800/50"
                         onClick={() => setIsSignInOpen(true)}
                       >
                         Sign In

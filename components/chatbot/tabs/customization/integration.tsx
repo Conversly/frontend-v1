@@ -95,38 +95,11 @@ export function IntegrationTab({
     </Highlight>
   );
 
-  const embedCode = `<script>
-(function () {
-  const botConfig = {
-    botId: "${chatbotId}",
-    color: "${config.primaryColor}",
-    title: "${config.DisplayName}",
-    welcomeMessage: "${config.InitialMessage}",
-    headerText: "${config.DisplayName}",
-    apiUrl: REPLACE IT WITH YOUR API URL,
-    apiKey: REPLACE IT WITH YOUR API KEY,
-    buttonAlign: "${config.buttonAlignment}",
-    buttonText: "${config.widgetButtonText}",
-    height: "${config.chatHeight}",
-    width: "${config.chatWidth}",
-    displayStyle: "${config.displayStyle}",
-    customIcon: ${config.PrimaryIcon ? `"${config.PrimaryIcon}"` : 'null'},
-    starter_questions: ${JSON.stringify(
-      config.starterQuestions.filter((q) => q.trim() !== '')
-    )},
-    prompt: "${systemPrompt}"
-  };
-  const script = document.createElement("script");
-  script.src = "https://cloud-ide-shas.s3.us-east-1.amazonaws.com/docBot/chat.js";
-  script.async = true;
-  script.onload = () => {
-    if (window.DocsBotAI) { window.DocsBotAI.init(botConfig); }
-  };
-  document.head.appendChild(script);
-})();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-`;
+  const embedCode = `<script
+    src="https://tuveroqvhzgyatcq.public.blob.vercel-storage.com/loader.min.js"
+    data-chatbot-id=${chatbotId}>
+  </script>`
+;
 
   const iframeCode = `<iframe
   COMING SOON!!
