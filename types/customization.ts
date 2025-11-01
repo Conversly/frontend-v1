@@ -73,6 +73,7 @@ export interface UIConfigInput {
   widgetBubbleColour: string;
   PrimaryIcon: string;
   widgeticon: string;
+  alignChatButton?: 'left' | 'right';
   buttonAlignment: 'left' | 'right';
   showButtonText: boolean;
   buttonText: string;

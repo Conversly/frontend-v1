@@ -19,7 +19,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { toast } from 'sonner';
-import { ChatbotPreview } from '@/components/chatbot/ChatbotPreview';
+import { PreviewChatWidget } from '@/components/chatbot/preview/PreviewChatWidget';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useCustomizationDraft, useCustomizationStore } from '@/store/chatbot/customization';
 import type { UIConfigInput } from '@/types/customization';
@@ -182,7 +182,7 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
         </div>
 
         {/* Two-column layout: settings left, preview right */}
-        <div className="grid lg:grid-cols-[1fr_500px] gap-6 items-start">
+        <div className="grid lg:grid-cols-[1fr_580px] gap-6 items-start">
           <div className="space-y-6">
             {/* Main Settings Tabs */}
             <Tabs defaultValue="content" className="space-y-6">
@@ -269,36 +269,7 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
                 icon={Sparkles}
               />
               <div className="mt-6 flex justify-center">
-                <ChatbotPreview
-                  color={config.primaryColor}
-                  selectedIcon={
-                    config.PrimaryIcon ? (
-                      <img src={config.PrimaryIcon} alt="Custom Icon" className="w-6 h-6" />
-                    ) : (
-                      icons.find((icon) => icon.id === config.widgeticon)?.component ?? (
-                        <MessageCircle className="w-6 h-6" />
-                      )
-                    )
-                  }
-                  buttonAlignment={config.buttonAlignment}
-                  showButtonText={config.showButtonText}
-                  buttonText={config.widgetButtonText}
-                  welcomeMessage={config.InitialMessage}
-                  displayStyle={config.displayStyle}
-                  customIcon={config.PrimaryIcon}
-                  starterQuestions={config.starterQuestions}
-                  HeaderText={config.DisplayName}
-                  inputPlaceholder={config.messagePlaceholder}
-                  initialMessages={config.InitialMessage.split('\n').filter((l: string) => l.trim() !== '')}
-                  keepShowingSuggested={config.keepShowingSuggested}
-                  collectFeedback={config.collectFeedback}
-                  allowRegenerate={config.allowRegenerate}
-                  dismissibleNoticeText={config.dismissibleNoticeText}
-                  footerText={config.footerText}
-                  autoShowInitial={config.autoShowInitial}
-                  autoShowDelaySec={config.autoShowDelaySec}
-                  widgetEnabled={config.widgetEnabled}
-                />
+                <PreviewChatWidget config={config} />
               </div>
             </div>
           </div>
