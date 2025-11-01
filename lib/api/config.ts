@@ -1,6 +1,6 @@
 export const API = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  RESPONSE_BASE_URL: process.env.NEXT_PUBLIC_RESPONSE_API_BASE_URL,
+  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "/api/v1",
+  RESPONSE_BASE_URL: process.env.NEXT_PUBLIC_RESPONSE_API_BASE_URL || "/api/v1",
   ENDPOINTS: {
     USER: {
       BASE_URL: () => "/user",
