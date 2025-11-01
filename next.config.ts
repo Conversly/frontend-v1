@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: "http://207.180.240.194:8020/api/v1/:path*",
+        destination: "https://terminal.apps.shashankkk.site/api/v1/:path*",
       },
     ];
   },
