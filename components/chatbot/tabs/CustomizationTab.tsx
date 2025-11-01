@@ -9,6 +9,7 @@ import {
   HelpCircle,
   MessageSquare,
   BrainCircuit,
+  
   Settings2,
   Code,
   Palette,
@@ -77,8 +78,8 @@ export function CustomizationTab({ chatbotId, systemPrompt }: CustomizationTabPr
     widgetEnabled: true,
     primaryColor: '#0e4b75',
     widgetBubbleColour: '#0e4b75',
-    PrimaryIcon: '',
-    widgeticon: 'chat',
+    PrimaryIcon: 'https://rle3ob7wdla6y74q.public.blob.vercel-storage.com/Screenshot%202025-11-01%20at%203.18.10%E2%80%AFpm.png',
+    widgeticon: 'https://rle3ob7wdla6y74q.public.blob.vercel-storage.com/Screenshot%202025-11-01%20at%203.18.10%E2%80%AFpm.png',
     buttonAlignment: 'right',
     showButtonText: false,
     buttonText: 'Chat with us',

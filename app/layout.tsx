@@ -3,9 +3,9 @@ import { ThemeProvider } from "@/components/shared/theme-provider";
 import { merge } from "@/utils/ui";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "./chatbot-isolation.css";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -45,10 +45,12 @@ export default function RootLayout({
             src="//unpkg.com/react-scan/dist/auto.global.js"
           />
         )}
-        <script
-          src="https://tuveroqvhzgyatcq.public.blob.vercel-storage.com/loader.min.js"
-          data-chatbot-id="6"
-          defer
+        <Script
+          src="https://rle3ob7wdla6y74q.public.blob.vercel-storage.com/conversly/loader.min.js"
+          data-chatbot-id="5"
+          data-testing="false"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
         />
       </head>
       <body
